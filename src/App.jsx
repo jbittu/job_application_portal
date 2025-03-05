@@ -11,6 +11,9 @@ import JobCard from './components/JobCard'
 import {store} from './redux/store'
 import { Provider } from 'react-redux'
 import './App.css'
+// import Navbar from './components/Navbar'
+
+
 
 function App() {
  
@@ -18,10 +21,11 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+       {/* <Navbar/> */}
         <div className="App">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="src/pages/ApplicationList" element={<ApplicationList />} />
+            <Route path="applications" element={<ApplicationList />} />
             <Route path="/applications/:id" element={<ApplicationSummary />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
             <Route path="/profile" element={<Profile />} />

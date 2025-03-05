@@ -1,0 +1,20 @@
+.navbar{
+    width: 100vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    color: turquoise;
+    background-color: darkgray;
+}
+
+.nav-link{
+    display: flex;
+    gap: 10px;
+
+}
+
+.nav-link a:hover {
+    color: turquoise; 
+    
+}
