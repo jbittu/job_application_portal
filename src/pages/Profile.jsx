@@ -5,15 +5,18 @@ import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, updateUser] = useState(UserContext);
-  const [userData, setUserData] = useState(user);
+  const {user, updateUser} = useContext(UserContext);
+  const [userData, setUserData] = useState({
+    username: user?.username || "",
+    useremail: user?.useremail || "",
+  });
 
   const handleChange = (e) => {
     setUserData({...userData, [e.target.name] : e.target.value})
   };
 
   const handleSubmit = () => {
-    e.preventDefaut();
+    e.preventDefault();
     updateUser(userData);
     alert("profile updated")
     navigate("/")
@@ -25,18 +28,18 @@ const Profile = () => {
       <h2>Profile Setting</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          User Name:{" "}
+          User Name:
           <input
             type="text"
             placeholder="User Name"
             name="username"
-            value={userData.userName}
+            value={userData.username}
             onChange={handleChange}
             required
           ></input>
         </label>
         <label>
-          User Email:{" "}
+          User Email:
           <input
             type="email"
             placeholder="User Email"

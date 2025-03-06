@@ -1,80 +1,96 @@
-import React, { use } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { addApplication } from "../redux/applicationSlice";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addApplication, updateApplication } from "../redux/applicationSlice";
 import validateForm from "./FormValidation";
 
 const ApplicationForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
+  
   const applications = useSelector((state) => state.applications.applications);
-  const exstingApplication = applications.find(
-    (application) => application.jobId === Number(id)
+  const existingApplication = applications.find(
+    (application) => Numner(application.jobId) === Number(id) 
   );
+  
 
   const [errors, setErrors] = useState({});
   const [step, setStep] = useState(1);
-  const [formdata, setFormData] = useState([
-    exstingApplication || {
-      id: Date.now(),
-      name: "",
-      email: "",
-      phone: "",
-      experience: "",
-      sills: [],
-      startdate: "",
-    },
-  ]);
-  const [skills, setSkills] = useState([]);
+  const [skills, setSkills] = useState("");
+
+  const [formData, setFormData] = useState({
+    id: Date.now(),
+    name: existingApplication?.name || "",
+    email: existingApplication?.email || "",
+    phone: existingApplication?.phone || "",
+    experience: existingApplication?.experience || "",
+    skills: existingApplication?.skills || [],
+    startdate: existingApplication?.startdate || "",
+  });
 
   useEffect(() => {
-    if (exstingApplication) {
-      setFormData(exstingApplication);
+    if (existingApplication) {
+      setFormData({
+        id: existingApplication.id,
+        name: existingApplication.name || "",
+        email: existingApplication.email || "",
+        phone: existingApplication.phone || "",
+        experience: existingApplication.experience || "",
+        skills: existingApplication.skills || [],
+        startdate: existingApplication.startdate || "",
+      });
     }
-  },[exstingApplication]);
+  }, [existingApplication]);
 
   const handleChange = (e) => {
-    setFormData({ ...formdata, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleNext = () => {
-    const newErrors = validateForm(formdata, step);
+    const newErrors = validateForm(formData, step);
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       setStep(step + 1);
     }
   };
+
   const handleBack = () => {
     setStep(step - 1);
   };
+
   const addSkill = () => {
     if (skills.trim()) {
-      setFormData({ ...formdata, skills: [...formdata.skills, skills.trim()] });
+      setFormData({ ...formData, skills: [...formData.skills, skills.trim()] });
       setSkills("");
     }
   };
-    const removeSkill = (index) => {
-        setFormData({...formdata, skills: formdata.skills.filter((_, i) => i !== index)});
-    }
-    const handleSubmit = (e)=>{
-        e.preventDefault();
-        const newErrors = validateForm(formdata, step);
-        setErrors(newErrors);
-        if(Object.keys(newErrors).length === 0){
-            if(exstingApplication){
-                dispatch(updateApplication({id: exstingApplication.id, ...formdata}));
-            }else{
-                dispatch(addApplication({jobId: Number(id), ...formdata}));
-            }
-            navigate(`/application/${id}`);
-        }
 
+  const removeSkill = (index) => {
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = validateForm(formData, step);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      if (existingApplication) {
+        dispatch(updateApplication({ id: existingApplication.id, ...formData }));
+      } else {
+        dispatch(addApplication({ jobId: Number(id), ...formData }));
+      }
+      navigate(`/applications/${id}`);
     }
+  };
+
   return (
     <div className="form-container">
-      <h2>{exstingApplication ? "Edite Application" : "New Application"}</h2>
+      <h2>{existingApplication ? "Edit Application" : "New Application"}</h2>
 
       {step === 1 && (
         <div>
@@ -83,7 +99,7 @@ const ApplicationForm = () => {
             type="text"
             placeholder="Full Name"
             name="name"
-            value={formdata.name}
+            value={formData.name}
             onChange={handleChange}
             required
           />
@@ -92,7 +108,7 @@ const ApplicationForm = () => {
             type="email"
             placeholder="Email"
             name="email"
-            value={formdata.email}
+            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -101,7 +117,7 @@ const ApplicationForm = () => {
             type="tel"
             placeholder="Phone no."
             name="phone"
-            value={formdata.phone}
+            value={formData.phone}
             onChange={handleChange}
             required
           />
@@ -109,14 +125,15 @@ const ApplicationForm = () => {
           <button onClick={handleNext}>Next</button>
         </div>
       )}
+
       {step === 2 && (
         <div>
-          <h3>Step 2:Experience ans Skills</h3>
+          <h3>Step 2: Experience and Skills</h3>
           <input
             type="number"
             placeholder="Years of Experience"
             name="experience"
-            value={formdata.experience}
+            value={formData.experience}
             onChange={handleChange}
             required
           />
@@ -129,17 +146,14 @@ const ApplicationForm = () => {
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
             />
-            <button type="button" onClick={addSkill}>
-              ADD
-            </button>
+            <br />
+            <button type="button" onClick={addSkill}>ADD</button>
           </div>
           <ul>
-            {formdata.skills.map((skill, index) => (
+            {formData.skills.map((skill, index) => (
               <li key={index}>
                 {skill}
-                <button type="button" onClick={() => removeSkill(index)}>
-                  X
-                </button>
+                <button type="button" onClick={() => removeSkill(index)}>X</button>
               </li>
             ))}
           </ul>
@@ -148,20 +162,21 @@ const ApplicationForm = () => {
           <button onClick={handleNext}>Next</button>
         </div>
       )}
+
       {step === 3 && (
         <div>
-            <h3>Step 3:Additional </h3>
-            <input
+          <h3>Step 3: Additional Information</h3>
+          <input
             type="date"
             placeholder="Start Date"
             name="startdate"
-            value={formdata.startdate}
+            value={formData.startdate}
             onChange={handleChange}
             required
-          />{errors.startdate && <p>{errors.startdate}</p>}
-
-            <button onClick={handleBack}>Back</button>
-            <button onClick={handleSubmit}>{exstingApplication? "Update" : "Submit"}</button>
+          />
+          {errors.startdate && <p>{errors.startdate}</p>}
+          <button onClick={handleBack}>Back</button>
+          <button onClick={handleSubmit}>{existingApplication ? "Update" : "Submit"}</button>
         </div>
       )}
     </div>

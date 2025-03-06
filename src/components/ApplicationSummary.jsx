@@ -6,7 +6,10 @@ const ApplicationSummary = () => {
  const {id} = useParams();
  const navigate = useNavigate();
  const applications = useSelector((state) => state.applications.applications);
- const application = applications.find((app) => app.id === Number(id));
+ const application = applications.find((app) => Number(app.jobId) === Number(id)) || {};
+ if (!application) {
+  return <p>Loading application details...</p>;
+}
 
   return (
     <div className="summary">
@@ -15,7 +18,7 @@ const ApplicationSummary = () => {
         <p><strong>Email:</strong>{application.email}</p>
         <p><strong>Phone no.:</strong>{application.phone}</p>
         <p><strong>Exprience:</strong>{application.experience}</p>
-        <p><strong>Skills:</strong>{application.skills.join(",")}</p>
+        <p><strong>Skills:</strong>{application.skills}</p>
         <p><strong>Starting Date:</strong>{application.startdate}</p>
 
         <button onClick={()=> navigate(`/form/${application.id}`)}>Edite Application</button>
