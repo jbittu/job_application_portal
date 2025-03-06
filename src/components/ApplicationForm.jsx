@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addApplication } from "../redux/applicationSlice";
 import { useDispatch } from "react-redux";
@@ -14,6 +14,7 @@ const ApplicationForm = () => {
   const exstingApplication = applications.find(
     (application) => application.jobId === Number(id)
   );
+
   const [errors, setErrors] = useState({});
   const [step, setStep] = useState(1);
   const [formdata, setFormData] = useState([
@@ -28,6 +29,12 @@ const ApplicationForm = () => {
     },
   ]);
   const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    if (exstingApplication) {
+      setFormData(exstingApplication);
+    }
+  },[exstingApplication]);
 
   const handleChange = (e) => {
     setFormData({ ...formdata, [e.target.name]: e.target.value });
@@ -51,7 +58,20 @@ const ApplicationForm = () => {
     const removeSkill = (index) => {
         setFormData({...formdata, skills: formdata.skills.filter((_, i) => i !== index)});
     }
+    const handleSubmit = (e)=>{
+        e.preventDefault();
+        const newErrors = validateForm(formdata, step);
+        setErrors(newErrors);
+        if(Object.keys(newErrors).length === 0){
+            if(exstingApplication){
+                dispatch(updateApplication({id: exstingApplication.id, ...formdata}));
+            }else{
+                dispatch(addApplication({jobId: Number(id), ...formdata}));
+            }
+            navigate(`/application/${id}`);
+        }
 
+    }
   return (
     <div className="form-container">
       <h2>{exstingApplication ? "Edite Application" : "New Application"}</h2>
@@ -126,6 +146,22 @@ const ApplicationForm = () => {
           {errors.skills && <p>{errors.skills}</p>}
           <button onClick={handleBack}>Back</button>
           <button onClick={handleNext}>Next</button>
+        </div>
+      )}
+      {step === 3 && (
+        <div>
+            <h3>Step 3:Additional </h3>
+            <input
+            type="date"
+            placeholder="Start Date"
+            name="startdate"
+            value={formdata.startdate}
+            onChange={handleChange}
+            required
+          />{errors.startdate && <p>{errors.startdate}</p>}
+
+            <button onClick={handleBack}>Back</button>
+            <button onClick={handleSubmit}>{exstingApplication? "Update" : "Submit"}</button>
         </div>
       )}
     </div>

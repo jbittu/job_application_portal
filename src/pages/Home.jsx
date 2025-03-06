@@ -14,7 +14,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <Navbar/>
+      {/* <Navbar/> */}
       <h2>Avilable Jobs</h2>
       <div className="job-list">
         {jobs.length>0 ?
